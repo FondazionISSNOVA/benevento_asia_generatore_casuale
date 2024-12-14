@@ -1,6 +1,10 @@
 import pandas as pd
 import numpy as np
-import time
+
+####################################
+### Genera numeri casuali
+####################################
+
 
 def _check_if_common_streets_and_return_new_chosen(chosen_nums, current_tipo, elenco_punti_prelievo):
     any_nums_overlap = elenco_punti_prelievo.loc[(current_tipo, chosen_nums),:].duplicated(subset='nome_strada_senza_punti').any()
@@ -37,9 +41,7 @@ def _return_final_choice_without_street_overlap(inital_choice, current_tipo, num
     return current_chosen
 
 
-def return_final_set_of_chosen_numbers(current_tipo, the_error_choice,dict_with_the_number_of_things_to_sample, elenco_punti_prelievo, alllow_same_street=False):
-    current_time = int(time.time())
-    rng = np.random.default_rng(seed=current_time)
+def return_final_set_of_chosen_numbers(current_tipo, the_error_choice,dict_with_the_number_of_things_to_sample, elenco_punti_prelievo,rng, alllow_same_street=False):
     nums_from_which_to_choose = elenco_punti_prelievo.loc[current_tipo].index
     how_many_nums_to_choose = dict_with_the_number_of_things_to_sample[the_error_choice][current_tipo]
     chosen_nums = rng.choice(nums_from_which_to_choose,how_many_nums_to_choose)
@@ -48,3 +50,41 @@ def return_final_set_of_chosen_numbers(current_tipo, the_error_choice,dict_with_
         return chosen_nums
     else:
         return _return_final_choice_without_street_overlap(chosen_nums, current_tipo, nums_from_which_to_choose, elenco_punti_prelievo, rng)
+    
+
+####################################
+### Genera e separa seme
+####################################
+
+def put_together_seed_and_params(seed_int,  the_error_choice, allow_same_street):
+    seed_str = str(seed_int)
+    
+    if(allow_same_street):
+        street_str = '1'
+    else:
+        street_str = '0'
+    if(the_error_choice=='1%'):
+        error_str = '1'
+    else:
+        error_str = '5'
+
+    return int(error_str+seed_str+street_str)
+
+def extract_error_and_str_params(entire_seed):
+    seed_str = str(entire_seed)
+    error_str = seed_str[0]
+    allow_str = seed_str[-1]
+
+    print(error_str)
+
+    if(error_str=='1'):
+        the_error_choice='1%'
+    else:
+        the_error_choice='5%'
+
+    if(allow_str=='1'):
+        allow_same_street = True
+    else:
+        allow_same_street = False
+
+    return the_error_choice, allow_same_street

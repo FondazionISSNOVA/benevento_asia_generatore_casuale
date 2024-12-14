@@ -2,8 +2,9 @@
 import pandas as pd
 import pickle as pkl
 import numpy as np
+import time
 from datetime import datetime
-from helpers import return_final_set_of_chosen_numbers
+from helpers import return_final_set_of_chosen_numbers, put_together_seed_and_params
 
 #############################################
 ####### Load stuff
@@ -71,9 +72,13 @@ else:
 st.write("\n\n")
 st.button("Rigenera le strade da campionare", type="primary")
 
+current_time = int(time.time())
+final_seed = put_together_seed_and_params(seed_int=current_time, the_error_choice=the_error_choice, allow_same_street=allow_same_street)
+rng = np.random.default_rng(seed=final_seed)
+
 df_to_print = []
 for current_tipo in dict_with_the_number_of_things_to_sample[the_error_choice].keys():
-    final_choice = return_final_set_of_chosen_numbers(current_tipo, the_error_choice, dict_with_the_number_of_things_to_sample, elenco_punti_prelievo, alllow_same_street=allow_same_street)
+    final_choice = return_final_set_of_chosen_numbers(current_tipo, the_error_choice, dict_with_the_number_of_things_to_sample, elenco_punti_prelievo, rng=rng, alllow_same_street=allow_same_street)
     final_choice = np.sort(final_choice)
     tmp_df = elenco_punti_prelievo.loc[(current_tipo,final_choice),:]
     df_to_print.append(tmp_df)
@@ -89,9 +94,8 @@ formatted_date = current_date.strftime("%Y_%m_%d")
 name_to_save = formatted_date+'_piano_campionamento.csv'
 st.download_button('Scarica la tabella in CSV', df_to_print.to_csv(), name_to_save)
 
-# https://t0nychn-options-2-trees-final-uq4fog.streamlit.app/
-# https://github.com/t0nychn/options-2-trees
-# https://prophet.streamlit.app/
-# https://github.com/maximelutel/streamlit_prophet
-# https://app-token-craft-example.streamlit.app/
-# https://app-token-craft-example.streamlit.app
+st.write('Condividi il codice identificativo dei risultati:')
+
+st.success(
+    final_seed
+)
