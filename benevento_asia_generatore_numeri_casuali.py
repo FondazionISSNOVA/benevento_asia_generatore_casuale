@@ -4,7 +4,7 @@ import pickle as pkl
 import numpy as np
 import time
 from datetime import datetime
-from helpers import return_final_set_of_chosen_numbers, put_together_seed_and_params
+from helpers import return_final_set_of_chosen_numbers, put_together_seed_and_params, get_random_work_day_in_span
 
 #############################################
 ####### Load stuff
@@ -34,7 +34,7 @@ elenco_punti_prelievo = pd.read_pickle('final_list_of_street_for_streamlit.pkl')
 st.sidebar.image('logo_asia.png', caption=None, width=None, clamp=False, channels="RGB", output_format="auto", use_container_width=True)
 
 # Sidebar
-
+st.sidebar.markdown('---')
 st.sidebar.write("\n\n")
 the_error_choice = st.sidebar.selectbox(
     "Seleziona il livello di errore desiderato",
@@ -54,7 +54,6 @@ st.sidebar.write("La tua scelta corrisponde ad un livello di confidenza del ", c
 st.sidebar.write("\n\n")
 # st.sidebar.write("Permetti la selezione di piu' punti raccolta nella stessa strada. \n (Consigliamo di no)")
 # allow_same_street = st.sidebar.toggle("Lo permetto")
-
 string_allow_same_street = st.sidebar.radio(
     "Permetti la selezione di piu' punti raccolta nella stessa strada. \n (Consigliamo di no)",
     ["Si", "No"],
@@ -66,11 +65,22 @@ else:
     allow_same_street = False
 
 
+st.sidebar.markdown('---')
+st.sidebar.write("\n\n")
+st.sidebar.write("Inserisci il numero di giorni (a partire da oggi) entro il quale vuoi che venga selezionata la data di controllo:")
+span_of_days_for_random_num_generator = st.sidebar.number_input(
+    "Inserisci un numero di giorni", value=15, placeholder="Inserisci un numero di giorni"
+)
+if(span_of_days_for_random_num_generator>1):
+    st.sidebar.write("Il numero inserito e' ", span_of_days_for_random_num_generator)
+else:
+    st.sidebar.write("Il numero inserito e' minore di 2. Il giorno selezionato sara' oggi")
+
 
 
 
 st.write("\n\n")
-st.button("Rigenera le strade da campionare", type="primary")
+st.button("Rigenera giorno e strade da campionare", type="primary")
 
 current_time = int(time.time())
 final_seed = put_together_seed_and_params(seed_int=current_time, the_error_choice=the_error_choice, allow_same_street=allow_same_street)
@@ -85,7 +95,9 @@ for current_tipo in dict_with_the_number_of_things_to_sample[the_error_choice].k
 df_to_print = pd.concat(df_to_print)[['Nome strada']]
 
 
+day_to_do_the_control = get_random_work_day_in_span(span_of_days_for_random_num_generator, rng) #Note that it's important to generate this last, to maintain compatiblity with the reader app
 
+st.success(f"Giorno in cui effettuare l'ispezione: {day_to_do_the_control}")
 
 st.table(df_to_print)
 
@@ -95,7 +107,6 @@ name_to_save = formatted_date+'_piano_campionamento.csv'
 st.download_button('Scarica la tabella in CSV', df_to_print.to_csv(), name_to_save)
 
 st.write('Condividi il codice identificativo dei risultati:')
-
-st.success(
+st.info(
     final_seed
 )

@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import datetime
 
 ####################################
 ### Genera numeri casuali
@@ -88,3 +89,37 @@ def extract_error_and_str_params(entire_seed):
         allow_same_street = False
 
     return the_error_choice, allow_same_street
+
+
+####################################
+### Generatore di giornata lavorativa
+####################################
+
+def _get_days_between_that_are_not_weekend(start_date, end_date):
+    delta = end_date - start_date
+    days = []
+    for i in range(delta.days + 1):
+        day = start_date + datetime.timedelta(days=i)
+        if(day.weekday() < 5):
+            days.append(day)
+    return days
+
+
+def _generate_random_workday_in_a_span_of_days(span_of_days_to_include):
+    first_day = datetime.date.today()
+    last_day = first_day + datetime.timedelta(days=span_of_days_to_include)
+    
+    final_days = _get_days_between_that_are_not_weekend(first_day, last_day)
+    return final_days
+
+
+def get_random_work_day_in_span(span_of_days_to_include, rng):
+    if(span_of_days_to_include>1):
+        lst_of_useful_days = _generate_random_workday_in_a_span_of_days(span_of_days_to_include)
+        chosen_date = rng.choice(lst_of_useful_days, 1)[0]
+    else:
+        chosen_date = datetime.date.today()
+
+    str_to_print = f'{chosen_date.year}-{chosen_date.month}-{chosen_date.day}'
+
+    return str_to_print

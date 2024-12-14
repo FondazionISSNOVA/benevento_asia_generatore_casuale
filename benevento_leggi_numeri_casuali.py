@@ -33,7 +33,7 @@ elenco_punti_prelievo = pd.read_pickle('final_list_of_street_for_streamlit.pkl')
 
 st.sidebar.image('logo_asia.png', caption=None, width=None, clamp=False, channels="RGB", output_format="auto", use_container_width=True)
 
-st.success(
+st.warning(
     "Inserisci il codice identificativo e premi invio",
 )
 seed_str = st.text_input("Codice", "0")
