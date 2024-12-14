@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import datetime
+from italian_holidays import italian_holidays
 
 ####################################
 ### Genera numeri casuali
@@ -116,7 +117,13 @@ def _generate_random_workday_in_a_span_of_days(span_of_days_to_include):
 def get_random_work_day_in_span(span_of_days_to_include, rng):
     if(span_of_days_to_include>1):
         lst_of_useful_days = _generate_random_workday_in_a_span_of_days(span_of_days_to_include)
-        chosen_date = rng.choice(lst_of_useful_days, 1)[0]
+        holidays = italian_holidays()
+        regenerate=True
+        while(regenerate):
+            chosen_date = rng.choice(lst_of_useful_days, 1)[0]
+            str_to_print = f'{chosen_date.year}-{chosen_date.month}-{chosen_date.day}'
+            if(not  holidays.is_holiday(str_to_print)):
+                regenerate=False
     else:
         chosen_date = datetime.date.today()
 
